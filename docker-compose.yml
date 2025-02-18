@@ -1,0 +1,48 @@
+services:
+    laravel:
+        build:
+            context: .
+            dockerfile: docker/dev/Dockerfile
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-8000}:8000'
+        environment:
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/app'
+        depends_on:
+            - vite
+            - mysql
+    vite:
+        build:
+            context: .
+            dockerfile: docker/dev/Dockerfile-vite
+        ports:
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        volumes:
+            - '.:/app'
+    mysql:
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - '13309:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: 'f83bt467nfx6m4gnf'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: 'tasks_manager'
+            MYSQL_USER: 'bruno'
+            MYSQL_PASSWORD: 'f83bt467nfx6m4gnf'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-pf83bt467nfx6m4gnf'
+            retries: 3
+            timeout: 5s
+# volumes:
+#     sail-mysql:
+#         driver: local

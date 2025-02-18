@@ -1,0 +1,9 @@
+FROM node:20-alpine
+
+COPY . /app
+WORKDIR /app
+RUN chmod +x /app/docker/dev/entrypoint-vite.sh
+
+ENTRYPOINT ["sh", "/app/docker/dev/entrypoint-vite.sh"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+EXPOSE 5173
